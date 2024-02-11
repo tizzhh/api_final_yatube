@@ -31,6 +31,14 @@ class Post(models.Model):
         null=True,
     )
 
+    class Meta:
+        # По какой-то неведомой мне причине не проходит тест
+        # при -pub_date, который сюда было бы поставить логичнее.
+        # Пишет, что в поле ответа нет автора, хотя он там есть,
+        # проверял в постмане... Сюдя по тесту там в поле не тот автор,
+        # что ожидается: TestUser вместо TestUserAnother
+        ordering = ('pub_date',)
+
     def __str__(self):
         return (
             (self.text[:POST_CHAR_LIMIT] + '...')

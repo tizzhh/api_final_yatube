@@ -1,23 +1,18 @@
 from django.core.exceptions import BadRequest
 from django.shortcuts import get_object_or_404
-from rest_framework import filters, permissions, viewsets
+from rest_framework import filters, mixins, permissions, viewsets
 from rest_framework.pagination import LimitOffsetPagination
 
-from api.serializers import (
-    CommentSerializer,
-    FollowSerializer,
-    GroupSerializer,
-    PostSerializer,
-)
+from api.permissions import IsRequestUserAuthOwnerOrReadOnly
+from api.serializers import (CommentSerializer, FollowSerializer,
+                             GroupSerializer, PostSerializer)
 from posts.models import Follow, Group, Post
 
 
-class IsRequestUserAuthOwnerOrReadOnly(permissions.IsAuthenticatedOrReadOnly):
-    def has_object_permission(self, request, view, obj):
-        return (
-            request.method in permissions.SAFE_METHODS
-            or request.user == obj.author
-        )
+class CreateListView(
+    mixins.CreateModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet
+):
+    ...
 
 
 class GroupView(viewsets.ReadOnlyModelViewSet):
@@ -51,7 +46,7 @@ class CommentView(viewsets.ModelViewSet):
         return get_object_or_404(Post, pk=pk)
 
 
-class FollowView(viewsets.ModelViewSet):
+class FollowView(CreateListView):
     serializer_class = FollowSerializer
     permission_classes = (permissions.IsAuthenticated,)
     filter_backends = (filters.SearchFilter,)
