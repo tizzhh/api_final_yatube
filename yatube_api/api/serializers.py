@@ -1,5 +1,7 @@
+from django.core.exceptions import BadRequest
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
+from rest_framework.validators import UniqueTogetherValidator
 
 from posts.models import Comment, Follow, Group, Post, User
 
@@ -28,7 +30,11 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class FollowSerializer(serializers.ModelSerializer):
-    user = serializers.SlugRelatedField(slug_field='username', read_only=True)
+    user = serializers.SlugRelatedField(
+        slug_field='username',
+        read_only=True,
+        default=serializers.CurrentUserDefault(),
+    )
     following = SlugRelatedField(
         queryset=User.objects.all(), slug_field='username'
     )
@@ -36,3 +42,14 @@ class FollowSerializer(serializers.ModelSerializer):
     class Meta:
         model = Follow
         fields = ('user', 'following')
+
+        validators = (
+            UniqueTogetherValidator(
+                queryset=Follow.objects.all(), fields=('user', 'following')
+            ),
+        )
+
+    def validate_following(self, value):
+        if self.context.get('request').user == value:
+            raise BadRequest('Cannot follow oneself')
+        return value

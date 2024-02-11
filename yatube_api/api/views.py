@@ -1,16 +1,19 @@
-from django.core.exceptions import BadRequest
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, mixins, permissions, viewsets
 from rest_framework.pagination import LimitOffsetPagination
 
 from api.permissions import IsRequestUserAuthOwnerOrReadOnly
-from api.serializers import (CommentSerializer, FollowSerializer,
-                             GroupSerializer, PostSerializer)
-from posts.models import Follow, Group, Post
+from api.serializers import (
+    CommentSerializer,
+    FollowSerializer,
+    GroupSerializer,
+    PostSerializer,
+)
+from posts.models import Group, Post
 
 
 class CreateListView(
-    mixins.CreateModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet
+        mixins.CreateModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet
 ):
     ...
 
@@ -56,12 +59,4 @@ class FollowView(CreateListView):
         return self.request.user.following.all()
 
     def perform_create(self, serializer):
-        user_to_follow = serializer.validated_data['following']
-        if user_to_follow == self.request.user:
-            raise BadRequest('Cannot follow oneself')
-        already_followed = Follow.objects.filter(
-            user=self.request.user, following=user_to_follow
-        )
-        if len(already_followed) != 0:
-            raise BadRequest('User is already being followed')
         serializer.save(user=self.request.user)
