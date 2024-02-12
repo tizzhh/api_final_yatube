@@ -79,7 +79,6 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'ru'
 
-# стоит ли тогда поменять время на Europe/Moscow/?
 TIME_ZONE = 'UTC'
 
 USE_I18N = True

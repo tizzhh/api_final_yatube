@@ -145,7 +145,7 @@ Python 3.9.18
 
 Автор:
 
-> https://github.com/tizzhh
+> tizzhh  https://github.com/tizzhh
 
 > darovadraste@gmail.com
 
